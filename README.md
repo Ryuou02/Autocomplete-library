@@ -2,7 +2,7 @@
 Make the text input to your console i/o based projects more easy to use with the help of autocomplete. The set of words just need to be loaded into the autocomplete object using its constructor.
 Enter the set of words as an array of `string` or as an array of `const char*` and specify the number of elements/words in the array as the other parameter.
 
-Made for windows OS, using visual studio
+Made for windows OS, using visual studio.
 
 ## The constructors are - 
 ```
