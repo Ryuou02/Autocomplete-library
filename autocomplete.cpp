@@ -12,16 +12,25 @@ void autocomplete::deleteguess(string guess)
 }
 
 autocomplete::autocomplete(string* wordset, int datasize) {
+	isnew = false;
 	words = wordset;
 	wordnum = datasize;
 }
 
-autocomplete::autocomplete(const char* wordset, int wordsnumber)
+autocomplete::autocomplete(const char* wordset[], int wordsnumber)
 {
+	isnew = true;
 	words = new string[wordsnumber];
+	wordnum = wordsnumber;
 	for (int i = 0; i < wordsnumber; i++) {
-		words[i] = wordset[i];
+		//std::cout << wordset[i] << '\n';
+		words[i] = string(wordset[i]);
 	}
+}
+autocomplete::~autocomplete()
+{
+	if(isnew)
+		delete[] words;
 }
 string autocomplete::input()
 {
@@ -57,7 +66,7 @@ string autocomplete::input()
 			pos++;
 			
 			for (; beg < end; beg++) {
-				if (pos < words[beg].size() && (words[beg][pos] == in)) {
+				if (pos + 1 < words[beg].size() && (words[beg][pos] == in)) {
 					break;
 				}
 			}
@@ -69,7 +78,7 @@ string autocomplete::input()
 					}
 				}
 				deleteguess(guess);
-				guess = words[(beg + end) /2].substr(pos + 1, words[(beg + end) / 2].size() - pos);
+				guess = words[beg].substr(pos + 1, words[beg].size() - pos);
 				std::cout << "\033[" << 32 << ";" << 40 << ";" << 1 << "m";;
 				_cputs(guess.c_str());
 				for (int i = 0; i < guess.size(); i++)
@@ -114,6 +123,6 @@ string autocomplete::input()
 		}
 
 	}
-
+	deleteguess(guess);
 	return input;
 }
