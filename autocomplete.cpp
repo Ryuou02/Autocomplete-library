@@ -34,7 +34,7 @@ autocomplete::~autocomplete()
 }
 string autocomplete::input()
 {
-	char in = 0;
+	wchar_t in = 0;
 	string input = "";
 	string guess = "";
 
@@ -42,27 +42,12 @@ string autocomplete::input()
 	int beg = 0, end = wordnum;
 
 	while (in != 13 && in != ' ') {
+		while (!_kbhit());
 		in = _getch();
-		if (in == 8) {
-			if (!input.empty())
-				input.pop_back();
-			else
-				return "\b";
-			if (--pos == -1) {
-				beg = 0;
-				end = wordnum;
-			}
-			deleteguess(guess);
 
-			_putch(8);
-			_putch(32);
-			_putch(8);
-			continue;
-		}
-
-		if (in >= 48 && in <= 127) {
+		if (in >= 33 && in <= 127) {	// is not special character
 			_putch(in);
-			input += in;
+			input.push_back(in);
 			pos++;
 			
 			for (; beg < end; beg++) {
@@ -79,50 +64,81 @@ string autocomplete::input()
 				}
 				deleteguess(guess);
 				guess = words[beg].substr(pos + 1, words[beg].size() - pos);
-				std::cout << "\033[" << 32 << ";" << 40 << ";" << 1 << "m";;
+				std::cout << "\033[2m";
 				_cputs(guess.c_str());
+
 				for (int i = 0; i < guess.size(); i++)
 					_putch(8);
+
 				std::cout << "\033[0m";;
 			}
 			else {
 				// word not found
 				deleteguess(guess);
-				std::cout << "\033[" << 37 << ";" << 40 << ";" << 2 << "m";;
-				_putch(in);
-				_cputs("word not found");
-				std::cout << "\033[0m";;
-				for (int i = 0; i < 15; i++)
-					_putch(8);
-				while (in != 13 && in != ' ' && in != '\t') {
+				while (in != 13 && in != ' ') {
 					in = _getch();
-					if (in == 8) {
-						if (!input.empty())
-							input.pop_back();
-						else
-							return this->input();
-						_putch(8);
-						_putch(32);
-						_putch(8);
-						continue;
+					if (in >= 33 && in <= 127) {
+						_putch(in);
+						input.push_back(in);
 					}
-					_putch(in);
-					input += in;
+					else {
+						switch (in) {
+						case 8:
+							if (!input.empty())
+								input.pop_back();
+							else
+								return this->input();
+							_putch(8);
+							_putch(32);
+							_putch(8);
+							break;
+						case 224:
+							_getch();
+						}
+					}
 				}
+				input.push_back(in);
 				return input;
 			}
 		}
-		if (in == '\t' && !guess.empty()) {
-			
-			_cputs(guess.c_str());	//no need to delete guess
-			input += guess;
-			pos += guess.size();
-		}
-		else if (in == '\t') {
-			//nothing
-		}
+		else {
+			switch (in) {
+			case 8:	// backspace
+				if (!input.empty())
+					input.pop_back();
+				else
+					return "\b";
 
+				if (--pos == -1) {
+					beg = 0;
+					end = wordnum;
+				}
+				deleteguess(guess);
+
+				_putch(8);
+				_putch(32);
+				_putch(8);
+				break;
+			case '\t':
+				if(!guess.empty()) {
+					_cputs(guess.c_str());	//no need to delete guess
+					input += guess;
+					pos += guess.size();
+				}
+				break;
+			case 224:
+				// special
+				if (input.empty()) {
+					input.push_back(224);
+					return input;
+				}
+				else
+					_getch();
+				break;
+			}
+		}
 	}
 	deleteguess(guess);
+	input.push_back(in);
 	return input;
 }
