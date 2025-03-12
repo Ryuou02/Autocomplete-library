@@ -7,7 +7,6 @@
 *****************************************/
 
 #include "autocomplete.h"
-#include<chrono>
 #include<algorithm>
 #include<string>
 #include<fstream>
