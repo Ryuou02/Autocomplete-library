@@ -7,44 +7,66 @@
 *****************************************/
 
 #include "autocomplete.h"
+#include<chrono>
 #include<algorithm>
 #include<string>
 #include<fstream>
 
 void wordToACbuffer(autocomplete& obj, const std::string& sentence) {	// get the most recent word from sentence and add it to autocomplete buffer
+	obj.clearWordBuffer();
 	int cursor = sentence.size() - 1;
-	while (cursor >= 0 && sentence[cursor] >= 'a' && sentence[cursor] <= 'z')
+	while (cursor >= 0 && (sentence[cursor] >= 'a' && sentence[cursor] <= 'z' || sentence[cursor] >= 'A' && sentence[cursor] <= 'Z'))
 		cursor--;
 	cursor++;
+	if (cursor == sentence.size() - 1)
+		obj.clearWordBuffer();
 	while (cursor < sentence.size())
 		obj.addChar(sentence[cursor++]);
 }
 
+autocomplete::autocomplete()
+{
+	this->wordset = vector<string>();
+}
+
 autocomplete::autocomplete(string* wordset, int datasize) {
 	wordnum = datasize;
-	std::ofstream filewrite("logs.txt");
+
 	this->wordset = vector<string>(datasize);
 	for (int i = 0; i < datasize; i++) {
 		this->wordset[i] = wordset[i];
+	}
+	std::sort(this->wordset.begin(), this->wordset.end());
+
+#ifdef _DEBUG
+	std::ofstream filewrite("logs.txt");
+	for (int i = 0; i < datasize; i++) {
 		filewrite << wordset[i] << '\n';
 	}
 	filewrite.close();
+#endif
+
 
 }
 
 autocomplete::autocomplete(const char* wordset[], int wordsnumber) 
 {
-	ofstream filewrite;
-	filewrite.open("logs.txt");
 	wordnum = wordsnumber;
 	this->wordset = vector<string>(wordsnumber);
 
 	for (int i = 0; i < wordsnumber; i++) {
 		this->wordset[i] = string(wordset[i]);
-		filewrite << wordset[i] << '\n';
 	}
 	std::sort(this->wordset.begin(), this->wordset.end());
+
+#ifdef _DEBUG
+	std::ofstream filewrite("logs.txt");
+	for (int i = 0; i < wordsnumber; i++) {
+		filewrite << wordset[i] << '\n';
+	}
 	filewrite.close();
+#endif
+
 }
 
 void autocomplete::addChar(char in){

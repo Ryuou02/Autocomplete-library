@@ -7,6 +7,8 @@
 *****************************************/
 #pragma once
 #include<iostream>
+#include<conio.h>
+#include<math.h>
 #include<vector>
 #include<stack>
 using namespace std;
@@ -24,6 +26,7 @@ class autocomplete
 	void getGuess();		// retrieves the guessed word based on word in buffer.
 public:
 	char mostRecentChar;
+	autocomplete();
 	autocomplete(string* wordset,int wordsnumber);
 	autocomplete(const char* wordset[], int wordsnumber);
 	bool guessExists() {
@@ -31,6 +34,14 @@ public:
 			return true;
 		else
 			return false;
+	}
+
+	// check whether the word exists in wordset
+	bool wordExists(std::string word) {		
+		if (find(wordset.begin(), wordset.end(), word) == wordset.end())
+			return 0;
+		else
+			return 1;
 	}
 	bool backspace() {
 		if (buffer.empty())
